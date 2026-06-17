@@ -1,0 +1,6 @@
+export const CONSULTATION_STATUSES = {
+    PENDING: 'PENDING',
+    PROCESSING: 'PROCESSING',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+} as const;
