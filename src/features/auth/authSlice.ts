@@ -1,9 +1,9 @@
 import api from '@/api/axiosInstance';
-import { isAxiosError } from 'axios';
 import type { LogInResponse, DoctorWithoutPassword } from '@/types/types';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { getErrorMessage } from '@/lib/utils';
 
-interface AuthState {
+interface AuthStateInterface {
     isLoggedIn: boolean;
     doctor: DoctorWithoutPassword | null;
     error: string | null;
@@ -11,7 +11,7 @@ interface AuthState {
     token: string;
 }
 
-const initialState: AuthState = {
+const initialState: AuthStateInterface = {
     isLoggedIn: !!localStorage.getItem('token'),
     doctor: null,
     error: null,
@@ -26,11 +26,7 @@ export const logIn = createAsyncThunk(
             const response = await api.post<LogInResponse>('/auth/login', credentials);
             return response.data;
         } catch (error: unknown) {
-            let message = 'Login failed';
-            if (isAxiosError(error)) {
-                message = error.response?.data?.error || error.message;
-            }
-            return thunkAPI.rejectWithValue(message);
+            return thunkAPI.rejectWithValue(getErrorMessage(error));
         }
     },
 );
