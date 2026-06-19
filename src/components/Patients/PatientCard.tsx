@@ -25,7 +25,7 @@ const PatientCard = ({ patient }: PatientCardProps) => {
             >
                 <CardContent className='flex items-center gap-4'>
                     <div
-                        className={`w-13 h-13 rounded-full ${bg} ${text} font-bold text-center flex items-center justify-center`}
+                        className={`w-13 h-13 text-lg tracking-wider rounded-full ${bg} ${text} font-bold text-center flex items-center justify-center`}
                     >
                         {initials}
                     </div>

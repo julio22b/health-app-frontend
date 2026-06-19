@@ -53,3 +53,5 @@ export interface LogInResponse {
     message: string;
     doctor: DoctorWithoutPassword;
 }
+
+export type RecordingStatus = 'idle' | 'recording' | 'paused' | 'processing' | 'done';
