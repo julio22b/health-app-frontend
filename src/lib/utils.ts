@@ -46,3 +46,12 @@ export const getLastVisitDate = (lastVisit: string) => {
         day: 'numeric',
     }).format(new Date(lastVisit));
 };
+
+export const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+        .toString()
+        .padStart(2, '0');
+    const secondsLefts = (seconds % 60).toString().padStart(2, '0');
+
+    return `${minutes}:${secondsLefts}`;
+};

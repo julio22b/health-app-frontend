@@ -26,7 +26,7 @@ const Patients = () => {
     };
 
     return (
-        <section className='p-4 border flex flex-col gap-5 bg-accent h-screen'>
+        <section className='p-4 border flex flex-col gap-5'>
             <header className='flex items-center justify-between'>
                 <h1 className='text-xl font-bold'>Select patient</h1>
                 <Button variant='outline' onClick={handleLogout}>

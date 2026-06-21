@@ -11,3 +11,11 @@ export const DOCUMENT_TYPES = {
     DISCHARGE_SUMMARY: { value: 'DISCHARGE_SUMMARY', label: 'Discharge' },
     // FOLLOW_UP_PLAN: { value: "FOLLOW_UP_PLAN", label: "Follow Up" },
 } as const;
+
+export const RECORDING_STATUSES = {
+    idle: 'idle',
+    recording: 'recording',
+    paused: 'paused',
+    processing: 'processing',
+    done: 'done',
+} as const;
