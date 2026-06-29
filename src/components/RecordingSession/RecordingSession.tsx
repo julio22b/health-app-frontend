@@ -1,18 +1,17 @@
-import { ArrowUp, InfoIcon, Mic, Pause, Trash } from 'lucide-react';
+import { ArrowUp, Mic, Pause, Trash } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useLocation, useNavigate } from 'react-router';
-import type { DocumentType, Patient, RecordingStatus } from '@/types/types';
+import type { Consultation, DocumentType, Patient, RecordingStatus } from '@/types/types';
 import { useEffect, useRef, useState } from 'react';
 import { DOCUMENT_TYPES, RECORDING_STATUSES } from '@/app/constants';
 import { ROUTES } from '@/routes';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
-import { delay, formatTime, getAge } from '@/lib/utils';
+import { delay, formatTime } from '@/lib/utils';
 import { createConsultation, processConsultation } from '@/features/consultations/consultationsSlice';
 import { useAppDispatch } from '@/app/hooks';
-import GoBackBtn from '../common/GoBackBtn';
-import PatientInitials from '../common/PatientInitials';
 import { toast } from 'sonner';
 import ProcessingRecording from './ProcessingRecording';
+import PatientHeader from '../common/PatientHeader';
 
 const RecordingSession = () => {
     const [documentType, setDocumentType] = useState<DocumentType>(DOCUMENT_TYPES.MEDICAL_HISTORY.value);
@@ -32,7 +31,7 @@ const RecordingSession = () => {
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationFrameRef = useRef<number | null>(null);
     const audioBlobRef = useRef<Blob | null>(null);
-    const consultationIdRef = useRef<number | null>(null);
+    const createdConsultationRef = useRef<Consultation | null>(null);
     const dispatch = useAppDispatch();
     const isRecording = recordingStatus === RECORDING_STATUSES.recording;
     const isPaused = recordingStatus === RECORDING_STATUSES.paused;
@@ -187,8 +186,10 @@ const RecordingSession = () => {
     };
 
     useEffect(() => {
-        if (isDone && consultationIdRef.current !== null) {
-            navigate(ROUTES.CONSULTATION_REVIEW.replace(':id', String(consultationIdRef.current)));
+        if (isDone && createdConsultationRef.current !== null) {
+            navigate(ROUTES.CONSULTATION_REVIEW.replace(':id', String(createdConsultationRef.current.id)), {
+                state: { patient, documentType, consultation: createdConsultationRef.current },
+            });
         }
     }, [isDone, navigate]);
 
@@ -198,10 +199,10 @@ const RecordingSession = () => {
         formData.append('patientId', patient.id!.toString());
         formData.append('audioFile', blob, 'consultation.webm');
         try {
-            const consultation = await dispatch(createConsultation(formData)).unwrap();
-            consultationIdRef.current = consultation.id;
+            const { id: consultationID } = await dispatch(createConsultation(formData)).unwrap();
             setIsConsultationCreated(true);
-            await dispatch(processConsultation({ consultationID: consultation.id, documentType })).unwrap();
+            const { consultation } = await dispatch(processConsultation({ consultationID, documentType })).unwrap();
+            createdConsultationRef.current = consultation;
             setIsConsultationProcessed(true);
             delay(2000).then(() => setRecordingStatus(RECORDING_STATUSES.done));
         } catch (error) {
@@ -226,17 +227,7 @@ const RecordingSession = () => {
 
     return (
         <section className='flex flex-col p-4 gap-4'>
-            <header className='flex items-center justify-between'>
-                <GoBackBtn />
-                {patient && (
-                    <div className='flex items-baseline gap-2'>
-                        <PatientInitials patient={patient} className='size-8 text-sm' />
-                        <p className='font-bold text-center'>{patient && patient.name}</p>
-                        <p className='text-sm text-muted-foreground'>{getAge(patient.date_of_birth)}y</p>
-                    </div>
-                )}
-                <InfoIcon />
-            </header>
+            {patient && <PatientHeader patient={patient} />}
             <ToggleGroup
                 onValueChange={(value: DocumentType) => setDocumentType(value || documentType)}
                 value={documentType}

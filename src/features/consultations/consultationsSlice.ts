@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { type Consultation, type DocumentType } from '@/types/types';
+import { type Consultation, type DocumentType, type Document, type ProcessConsultationResponse } from '@/types/types';
 import api from '@/api/axiosInstance';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -31,12 +31,12 @@ export const createConsultation = createAsyncThunk<Consultation, FormData, { rej
 );
 
 export const processConsultation = createAsyncThunk<
-    Consultation,
+    ProcessConsultationResponse,
     { consultationID: number; documentType: DocumentType },
     { rejectValue: string }
 >('consultations/processConsultation', async (payload, thunkAPI) => {
     try {
-        const data = (await api.post<Consultation>('/consultations/process', payload)).data;
+        const data = (await api.post<ProcessConsultationResponse>('/consultations/process', payload)).data;
         return data;
     } catch (error) {
         return thunkAPI.rejectWithValue(getErrorMessage(error));

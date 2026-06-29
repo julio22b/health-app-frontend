@@ -29,7 +29,7 @@ type ConsultationStatuses = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 export type DocumentType = 'MEDICAL_HISTORY' | 'PROGRESS_NOTE' | 'DISCHARGE_SUMMARY';
 
-interface Document {
+export interface Document {
     id: number;
     consultation_id: number;
     consultation: Consultation;
@@ -59,6 +59,12 @@ export interface LogInResponse {
     token: string;
     message: string;
     doctor: DoctorWithoutPassword;
+}
+
+export interface ProcessConsultationResponse {
+    consultation: Consultation;
+    message: string;
+    document: Document;
 }
 
 export type RecordingStatus = 'idle' | 'recording' | 'paused' | 'processing' | 'consultation_created' | 'done';

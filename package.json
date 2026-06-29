@@ -8,7 +8,8 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "preview": "vite preview",
-        "backend": "cd .. && cd health-app-backend && npm run dev"
+        "be": "cd .. && cd health-app-backend && npm run dev",
+        "open-be": "cd .. && cd health-app-backend && code ."
     },
     "dependencies": {
         "@fontsource-variable/geist": "^5.2.9",
