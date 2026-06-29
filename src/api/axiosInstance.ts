@@ -10,6 +10,7 @@ declare module 'axios' {
 
 const WAKEUP_TOAST_ID = 'server-wakeup';
 const WAKEUP_THRESHOLD_MS = 3000;
+let isRedirectingToLogin = false;
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -48,7 +49,8 @@ api.interceptors.response.use(
         clearTimeout(error.config?._wakeupTimer);
         toast.dismiss(WAKEUP_TOAST_ID);
 
-        if (error.response?.status === 401 && !error.config?.url?.includes('/auth')) {
+        if (error.response?.status === 401 && !error.config?.url?.includes('/auth') && !isRedirectingToLogin) {
+            isRedirectingToLogin = true;
             localStorage.removeItem('token');
             window.location.replace(ROUTES.LOGIN);
         }

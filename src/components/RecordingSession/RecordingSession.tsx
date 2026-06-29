@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { DOCUMENT_TYPES, RECORDING_STATUSES } from '@/app/constants';
 import { ROUTES } from '@/routes';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
-import { delay, formatTime } from '@/lib/utils';
+import { formatTime } from '@/lib/utils';
 import { createConsultation, processConsultation } from '@/features/consultations/consultationsSlice';
 import { useAppDispatch } from '@/app/hooks';
 import { toast } from 'sonner';
@@ -22,7 +22,7 @@ const RecordingSession = () => {
     const [isConsultationProcessed, setIsConsultationProcessed] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const patient = location.state.patient as Patient | null;
+    const { patient } = (location.state || {}) as { patient: Patient };
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -32,6 +32,7 @@ const RecordingSession = () => {
     const animationFrameRef = useRef<number | null>(null);
     const audioBlobRef = useRef<Blob | null>(null);
     const createdConsultationRef = useRef<Consultation | null>(null);
+    const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const dispatch = useAppDispatch();
     const isRecording = recordingStatus === RECORDING_STATUSES.recording;
     const isPaused = recordingStatus === RECORDING_STATUSES.paused;
@@ -63,37 +64,37 @@ const RecordingSession = () => {
 
     const startDrawLoop = () => {
         if (!analyserRef.current) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
         const bufferLength = analyserRef.current.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
+
+        const dpr = window.devicePixelRatio || 1;
+        const cssWidth = canvas.clientWidth;
+        const cssHeight = canvas.clientHeight;
+        canvas.width = cssWidth * dpr;
+        canvas.height = cssHeight * dpr;
+
+        const barCount = 55;
+        const barWidth = 6;
+        const gap = 5;
+        const totalWidth = barCount * (barWidth + gap) - gap;
+        const startX = (cssWidth - totalWidth) / 2;
+        const centerY = cssHeight / 2;
+        const maxBarHalfHeight = cssHeight * 0.42;
+        const minBarHalfHeight = 3;
+        const step = Math.floor(bufferLength / barCount);
+        const radius = barWidth / 2;
 
         const draw = () => {
             animationFrameRef.current = requestAnimationFrame(draw);
             analyserRef.current!.getByteFrequencyData(dataArray);
 
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-
-            const dpr = window.devicePixelRatio || 1;
-            const cssWidth = canvas.clientWidth;
-            const cssHeight = canvas.clientHeight;
-            canvas.width = cssWidth * dpr;
-            canvas.height = cssHeight * dpr;
-            ctx.scale(dpr, dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.clearRect(0, 0, cssWidth, cssHeight);
-
-            const barCount = 55;
-            const barWidth = 6;
-            const gap = 5;
-            const totalWidth = barCount * (barWidth + gap) - gap;
-            const startX = (cssWidth - totalWidth) / 2;
-            const centerY = cssHeight / 2;
-            const maxBarHalfHeight = cssHeight * 0.42;
-            const minBarHalfHeight = 3;
-            const step = Math.floor(bufferLength / barCount);
-            const radius = barWidth / 2;
-
             ctx.fillStyle = '#2563eb';
 
             for (let i = 0; i < barCount; i++) {
@@ -186,6 +187,12 @@ const RecordingSession = () => {
     };
 
     useEffect(() => {
+        return () => {
+            if (doneTimerRef.current !== null) clearTimeout(doneTimerRef.current);
+        };
+    }, []);
+
+    useEffect(() => {
         if (isDone && createdConsultationRef.current !== null) {
             navigate(ROUTES.CONSULTATION_REVIEW.replace(':id', String(createdConsultationRef.current.id)), {
                 state: { patient, documentType, consultation: createdConsultationRef.current },
@@ -195,8 +202,9 @@ const RecordingSession = () => {
 
     const dispatchConsultation = async (blob: Blob) => {
         if (!patient) return;
+
         const formData = new FormData();
-        formData.append('patientId', patient.id!.toString());
+        formData.append('patientId', patient.id.toString());
         formData.append('audioFile', blob, 'consultation.webm');
         try {
             const { id: consultationID } = await dispatch(createConsultation(formData)).unwrap();
@@ -204,8 +212,10 @@ const RecordingSession = () => {
             const { consultation } = await dispatch(processConsultation({ consultationID, documentType })).unwrap();
             createdConsultationRef.current = consultation;
             setIsConsultationProcessed(true);
-            delay(2000).then(() => setRecordingStatus(RECORDING_STATUSES.done));
+            doneTimerRef.current = setTimeout(() => setRecordingStatus(RECORDING_STATUSES.done), 2000);
         } catch (error) {
+            // add error handling, the loader should show which step failed
+            setRecordingStatus(RECORDING_STATUSES.idle);
             console.log('error', error);
         }
     };
@@ -220,6 +230,9 @@ const RecordingSession = () => {
         audioChunksRef.current = [];
         setHasRecording(false);
         setRecordingStatus(RECORDING_STATUSES.idle);
+        setIsConsultationCreated(false);
+        setIsConsultationProcessed(false);
+        if (doneTimerRef.current !== null) clearTimeout(doneTimerRef.current);
         setTimer(0);
         const canvas = canvasRef.current;
         if (canvas) canvas.getContext('2d')?.clearRect(0, 0, canvas.width, canvas.height);

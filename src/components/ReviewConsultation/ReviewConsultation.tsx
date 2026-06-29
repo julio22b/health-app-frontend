@@ -16,14 +16,16 @@ const ReviewConsultation = () => {
         documentType: DocumentType;
         patient: Patient;
     };
-    const [content, setContent] = useState(consultation.documents[0].content);
+    const [content, setContent] = useState(consultation?.documents[0]?.content ?? '');
     const navigate = useNavigate();
 
     return (
         <section className='flex flex-col p-4 gap-6'>
             <PatientHeader patient={patient} />
             <div className='w-full border border-gray-200 rounded-lg p-4 text-sm bg-white overflow-auto'>
-                <p className='font-bold m-2 border-b border-gray-100 pb-2'>{DOCUMENT_TYPES[documentType].label}</p>
+                <p className='font-bold m-2 border-b border-gray-100 pb-2'>
+                    {DOCUMENT_TYPES[documentType]?.label || ''}
+                </p>
                 <Textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}

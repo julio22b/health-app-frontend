@@ -46,9 +46,16 @@ const ProcessingRecording = ({
                     <p className='text-xs text-muted-foreground'>Saving the visit to the chart</p>
                 </div>
             </div>
-            <p className='text-sm text-muted-foreground text-center w-70'>
-                Processing {time} of audio. Keep this screen open until the process is complete.
-            </p>
+            {(!isConsultationCreated || !isConsultationProcessed) && (
+                <p className='text-sm text-muted-foreground text-center w-70'>
+                    Processing {time} of audio. Keep this screen open until the process is complete.
+                </p>
+            )}
+            {isConsultationCreated && isConsultationProcessed && (
+                <p className='text-sm text-green-600 text-center w-70'>
+                    Both steps are completed. Taking you to review...
+                </p>
+            )}
         </div>
     );
 };

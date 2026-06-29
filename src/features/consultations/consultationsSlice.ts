@@ -62,6 +62,22 @@ const consultationsSlice = createSlice({
             .addCase(createConsultation.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload ?? null;
+            })
+            .addCase(processConsultation.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(processConsultation.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentConsultation = action.payload.consultation;
+                state.document = action.payload.document;
+                state.error = null;
+            })
+            .addCase(processConsultation.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload ?? null;
+                state.currentConsultation = null;
+                state.document = null;
             });
     },
 });
