@@ -1,14 +1,19 @@
 import { getAge } from '@/lib/utils';
-import { InfoIcon } from 'lucide-react';
+import { Home } from 'lucide-react';
 import GoBackBtn from './GoBackBtn';
 import PatientInitials from './PatientInitials';
 import type { Patient } from '@/types/types';
+import { Button } from '../ui/button';
+import { useNavigate } from 'react-router';
+import { ROUTES } from '@/routes';
 
 interface PatientHeaderInterface {
     patient: Patient;
 }
 
 const PatientHeader = ({ patient }: PatientHeaderInterface) => {
+    const navigate = useNavigate();
+
     return (
         <header className='flex items-center justify-between'>
             <GoBackBtn />
@@ -19,7 +24,9 @@ const PatientHeader = ({ patient }: PatientHeaderInterface) => {
                     <p className='text-sm text-muted-foreground'>{getAge(patient.date_of_birth)}y</p>
                 </div>
             )}
-            <InfoIcon />
+            <Button variant='outline' size='icon' className='rounded-full' onClick={() => navigate(ROUTES.PATIENTS)}>
+                <Home />
+            </Button>
         </header>
     );
 };

@@ -1,13 +1,17 @@
 import { ArrowUp, Mic, Pause, Trash } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useLocation, useNavigate } from 'react-router';
-import type { Consultation, DocumentType, Patient, RecordingStatus } from '@/types/types';
+import type { Consultation, Document, DocumentType, Patient, RecordingStatus } from '@/types/types';
 import { useEffect, useRef, useState } from 'react';
 import { DOCUMENT_TYPES, RECORDING_STATUSES } from '@/app/constants';
 import { ROUTES } from '@/routes';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { formatTime } from '@/lib/utils';
-import { createConsultation, processConsultation } from '@/features/consultations/consultationsSlice';
+import {
+    createConsultation,
+    processConsultation,
+    updateConsultationAudio,
+} from '@/features/consultations/consultationsSlice';
 import { useAppDispatch } from '@/app/hooks';
 import { toast } from 'sonner';
 import ProcessingRecording from './ProcessingRecording';
@@ -22,7 +26,11 @@ const RecordingSession = () => {
     const [isConsultationProcessed, setIsConsultationProcessed] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const { patient } = (location.state || {}) as { patient: Patient };
+    const { patient, existingConsultation } = (location.state || {}) as {
+        patient: Patient;
+        existingConsultation?: Consultation;
+    };
+    // recording and canvas ref
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -31,7 +39,9 @@ const RecordingSession = () => {
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationFrameRef = useRef<number | null>(null);
     const audioBlobRef = useRef<Blob | null>(null);
+    //
     const createdConsultationRef = useRef<Consultation | null>(null);
+    const createdDocumentRef = useRef<Document | null>(null);
     const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const dispatch = useAppDispatch();
     const isRecording = recordingStatus === RECORDING_STATUSES.recording;
@@ -135,7 +145,7 @@ const RecordingSession = () => {
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
             audioBlobRef.current = audioBlob;
             setHasRecording(true);
-            dispatchConsultation(audioBlob);
+            dispatchConsultation(audioBlob, existingConsultation?.id);
         };
 
         mediaRecorderRef.current.start();
@@ -193,25 +203,44 @@ const RecordingSession = () => {
     }, []);
 
     useEffect(() => {
-        if (isDone && createdConsultationRef.current !== null) {
+        if (isDone && createdConsultationRef.current !== null && createdDocumentRef.current !== null) {
             navigate(ROUTES.CONSULTATION_REVIEW.replace(':id', String(createdConsultationRef.current.id)), {
-                state: { patient, documentType, consultation: createdConsultationRef.current },
+                state: {
+                    patient,
+                    documentType,
+                    consultation: createdConsultationRef.current,
+                    document: createdDocumentRef.current,
+                },
             });
         }
     }, [isDone, navigate]);
 
-    const dispatchConsultation = async (blob: Blob) => {
+    const dispatchConsultation = async (blob: Blob, existingConsultationId?: number) => {
         if (!patient) return;
 
         const formData = new FormData();
         formData.append('patientId', patient.id.toString());
         formData.append('audioFile', blob, 'consultation.webm');
         try {
-            const { id: consultationID } = await dispatch(createConsultation(formData)).unwrap();
+            let consultationId: number;
+            if (existingConsultationId) {
+                consultationId = (
+                    await dispatch(
+                        updateConsultationAudio({ consultationId: existingConsultationId, formData }),
+                    ).unwrap()
+                ).id;
+            } else consultationId = (await dispatch(createConsultation(formData)).unwrap()).id;
+
             setIsConsultationCreated(true);
-            const { consultation } = await dispatch(processConsultation({ consultationID, documentType })).unwrap();
-            createdConsultationRef.current = consultation;
+
+            const { consultation, document } = await dispatch(
+                processConsultation({ consultationId, documentType }),
+            ).unwrap();
+
             setIsConsultationProcessed(true);
+
+            createdConsultationRef.current = consultation;
+            createdDocumentRef.current = document;
             doneTimerRef.current = setTimeout(() => setRecordingStatus(RECORDING_STATUSES.done), 2000);
         } catch (error) {
             // add error handling, the loader should show which step failed
@@ -221,7 +250,10 @@ const RecordingSession = () => {
     };
 
     const onSubmit = () => {
-        if (!patient) return;
+        if (!patient) {
+            toast.error('Patient not found');
+            return;
+        }
         stopRecording();
     };
 

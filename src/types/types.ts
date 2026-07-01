@@ -67,4 +67,14 @@ export interface ProcessConsultationResponse {
     document: Document;
 }
 
+export interface RerecordConsultationResponse {
+    message: string;
+    consultation: Consultation;
+}
+
+export interface ReviewConsultationResponse {
+    message: string;
+    document: Document;
+}
+
 export type RecordingStatus = 'idle' | 'recording' | 'paused' | 'processing' | 'consultation_created' | 'done';
