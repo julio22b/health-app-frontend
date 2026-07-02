@@ -21,7 +21,6 @@ const RecordingSession = () => {
     const [documentType, setDocumentType] = useState<DocumentType>(DOCUMENT_TYPES.MEDICAL_HISTORY.value);
     const [recordingStatus, setRecordingStatus] = useState<RecordingStatus>(RECORDING_STATUSES.idle);
     const [timer, setTimer] = useState<number>(0);
-    const [hasRecording, setHasRecording] = useState(false);
     const [isConsultationCreated, setIsConsultationCreated] = useState(false);
     const [isConsultationProcessed, setIsConsultationProcessed] = useState(false);
     const location = useLocation();
@@ -67,10 +66,6 @@ const RecordingSession = () => {
         clearInterval(timerRef.current ?? undefined);
     };
 
-    const stopTimer = () => {
-        clearInterval(timerRef.current ?? undefined);
-        setTimer(0);
-    };
 
     const startDrawLoop = () => {
         if (!analyserRef.current) return;
@@ -144,7 +139,6 @@ const RecordingSession = () => {
         mediaRecorderRef.current.onstop = () => {
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
             audioBlobRef.current = audioBlob;
-            setHasRecording(true);
             dispatchConsultation(audioBlob, existingConsultation?.id);
         };
 
@@ -176,7 +170,6 @@ const RecordingSession = () => {
         mediaRecorderRef.current?.pause();
         pauseTimer();
         setRecordingStatus(RECORDING_STATUSES.paused);
-        setHasRecording(true);
         cancelAnimationFrame(animationFrameRef.current!);
     };
 
@@ -188,7 +181,7 @@ const RecordingSession = () => {
 
     const stopRecording = () => {
         mediaRecorderRef.current?.stop();
-        stopTimer();
+        pauseTimer();
         setRecordingStatus(RECORDING_STATUSES.processing);
         cancelAnimationFrame(animationFrameRef.current!);
         canvasRef.current
@@ -217,6 +210,9 @@ const RecordingSession = () => {
 
     const dispatchConsultation = async (blob: Blob, existingConsultationId?: number) => {
         if (!patient) return;
+
+        setIsConsultationCreated(false);
+        setIsConsultationProcessed(false);
 
         const formData = new FormData();
         formData.append('patientId', patient.id.toString());
@@ -258,11 +254,11 @@ const RecordingSession = () => {
     };
 
     const discardRecording = () => {
+        pauseRecording();
         audioBlobRef.current = null;
         audioChunksRef.current = [];
-        setHasRecording(false);
+        mediaRecorderRef.current?.stream?.getTracks().forEach((t) => t.stop());
         setRecordingStatus(RECORDING_STATUSES.idle);
-        setIsConsultationCreated(false);
         setIsConsultationProcessed(false);
         if (doneTimerRef.current !== null) clearTimeout(doneTimerRef.current);
         setTimer(0);
@@ -328,11 +324,10 @@ const RecordingSession = () => {
                 </p>
             )}
             <div className='flex justify-around items-center'>
-                {!isIdle && !isProcessing && (
+                {!isIdle && !isProcessing && !isDone && (
                     <div>
                         <Button
                             className='size-14 bg-white rounded-full shadow-md shadow-gray-200 border-gray-200'
-                            disabled={isRecording || !hasRecording}
                             onClick={discardRecording}
                         >
                             <Trash className='size-7 text-red-500' />
@@ -361,7 +356,7 @@ const RecordingSession = () => {
                         </p>
                     </div>
                 )}
-                {!isIdle && !isProcessing && (
+                {!isIdle && !isProcessing && !isDone && (
                     <div>
                         <Button
                             className='size-14 bg-green-600 rounded-full shadow-md shadow-green-400 text-white text-xs font-semibold border-gray-200'
