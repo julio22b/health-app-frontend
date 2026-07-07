@@ -12,6 +12,7 @@ import { CircleCheck } from 'lucide-react';
 import FullPageLoader from './components/common/FullPageLoader';
 import { useEffect, useState } from 'react';
 import { subscribeServerWakeup } from './lib/serverWakeup';
+import PatientDetails from './components/PatientDetails/PatientDetails';
 
 function App() {
     const { auth } = useAppState();
@@ -30,6 +31,7 @@ function App() {
                 <Route path={ROUTES.LOGIN} element={<LogIn />} />
                 <Route element={<ProtectedRoute isAuthenticated={auth.isLoggedIn} />}>
                     <Route path={ROUTES.PATIENTS} element={<Patients />} />
+                    <Route path={ROUTES.PATIENT_DETAILS} element={<PatientDetails />} />
                     <Route path={ROUTES.PATIENTS_NEW} element={<PatientForm />} />
                     <Route path={ROUTES.CONSULTATION_NEW} element={<RecordingSession />} />
                     <Route path={ROUTES.CONSULTATION_NEW_EXISTING_PATIENT} element={<RecordingSession />} />

@@ -264,7 +264,7 @@ const RecordingSession = () => {
             // add error handling, the loader should show which step failed
             setRecordingStatus(RECORDING_STATUSES.idle);
             audioChunksRef.current = [];
-            console.log('error', error);
+            toast.error('Error creating consultation: ' + error);
         }
     };
 

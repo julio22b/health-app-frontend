@@ -51,6 +51,23 @@ export const getLastVisitDate = (lastVisit: string) => {
     }).format(new Date(lastVisit));
 };
 
+export function getDocumentPreview(content: string, maxLength = 160): string {
+    const collapse = (text: string) => text.replace(/\s+/g, ' ').trim();
+
+    const prose = content
+        .split('\n')
+        .map((line) => line.replace(/^[-•*]\s*/, '').trim())
+        .filter((line) => line.length > 0)
+        .filter((line) => line !== line.toUpperCase()) // drop the title + ALL-CAPS section headings
+        .filter((line) => !/^[\p{L} ]{1,25}:\s*\S/u.test(line)) // drop "Fecha: ...", "Paciente: ..." metadata
+        .join(' ');
+
+    const summary = collapse(prose) || collapse(content);
+    if (summary.length <= maxLength) return summary;
+
+    return summary.slice(0, maxLength).replace(/\s+\S*$/, '') + '…';
+}
+
 export const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
         .toString()

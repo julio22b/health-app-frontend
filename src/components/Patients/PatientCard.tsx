@@ -2,7 +2,7 @@ import type { Patient } from '@/types/types';
 import { Card, CardContent } from '../ui/card';
 import { getAgeFromDOB, getLastVisitDate } from '@/lib/utils';
 import { ArrowRightIcon } from 'lucide-react';
-import { generatePath, Link } from 'react-router';
+import { Link } from 'react-router';
 import { ROUTES } from '@/routes';
 import PatientInitials from '../common/PatientInitials';
 
@@ -13,10 +13,7 @@ interface PatientCardProps {
 const PatientCard = ({ patient }: PatientCardProps) => {
     return (
         <Card className='shadow-md'>
-            <Link
-                to={generatePath(ROUTES.CONSULTATION_NEW_EXISTING_PATIENT, { id: patient.id.toString() })}
-                state={{ patient }}
-            >
+            <Link to={ROUTES.PATIENT_DETAILS.replace(':id', String(patient.id))} state={{ patient }}>
                 <CardContent className='flex items-center gap-4'>
                     <PatientInitials patient={patient} />
                     <div>
