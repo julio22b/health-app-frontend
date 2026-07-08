@@ -26,8 +26,9 @@ Physicians spend a large share of their day writing documentation instead of see
 
 ## Screenshots & demo
 
-_(Add screenshots: patient list, recording screen with waveform, generated document review.)_
-![screen for the list of patients](/docs/screenshots/patients-screen.png)
+<img src="/docs/screenshots/patients-screen.png" alt="patients screen" width="300" />
+<img src="/docs/screenshots/recording.png" alt="recording screen" width="300" />
+<img src="/docs/screenshots/review.png" alt="review screen" width="300" />
 
 ---
 
