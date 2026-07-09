@@ -137,7 +137,7 @@ const PatientDetails = () => {
                 )}
             </div>
             <Button
-                className='rounded-full fixed bottom-4 right-4 p-5 flex items-center justify-between'
+                className='rounded-full fixed bottom-4 right-[max(1rem,calc(50%-23rem))] p-5 flex items-center justify-between'
                 onClick={() =>
                     navigate(ROUTES.CONSULTATION_NEW_EXISTING_PATIENT.replace(':id', String(patient.id)), {
                         state: { patient },

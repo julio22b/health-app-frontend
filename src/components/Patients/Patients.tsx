@@ -69,7 +69,7 @@ const Patients = () => {
                                 </span>
                             )}
                         </h2>
-                        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             {filteredPatients.map((patient) => (
                                 <PatientCard key={patient.id} patient={patient} />
                             ))}
@@ -78,7 +78,7 @@ const Patients = () => {
                 )}
             </div>
             <Link to={ROUTES.CONSULTATION_NEW}>
-                <Button className='rounded-full fixed bottom-4 right-4 p-5 flex items-center justify-between'>
+                <Button className='rounded-full fixed bottom-4 right-[max(1rem,calc(50%-23rem))] p-5 flex items-center justify-between'>
                     <Mic />
                     Quick Record
                 </Button>

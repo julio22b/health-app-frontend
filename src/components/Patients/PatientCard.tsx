@@ -16,14 +16,14 @@ const PatientCard = ({ patient }: PatientCardProps) => {
             <Link to={ROUTES.PATIENT_DETAILS.replace(':id', String(patient.id))}>
                 <CardContent className='flex items-center gap-4'>
                     <PatientInitials patient={patient} />
-                    <div>
-                        <p>{patient.name}</p>
-                        <p className='text-sm text-muted-foreground'>
+                    <div className='min-w-0 flex-1'>
+                        <p className='truncate'>{patient.name}</p>
+                        <p className='truncate text-sm text-muted-foreground'>
                             {getAgeFromDOB(patient.date_of_birth)}y &middot; Last visit{' '}
                             {patient.last_visit ? getLastVisitDate(patient.last_visit) : 'never'}
                         </p>
                     </div>
-                    <ArrowRightIcon className='ml-auto text-muted-foreground' />
+                    <ArrowRightIcon className='ml-auto shrink-0 text-muted-foreground' />
                 </CardContent>
             </Link>
         </Card>

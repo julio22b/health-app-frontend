@@ -26,20 +26,25 @@ function App() {
             {serverWakingUp && (
                 <FullPageLoader message='Server is waking up…' description='This may take a few seconds.' />
             )}
-            <Routes>
-                <Route path='/' element={<Navigate to={auth.isLoggedIn ? ROUTES.PATIENTS : ROUTES.LOGIN} replace />} />
-                <Route path={ROUTES.LOGIN} element={<LogIn />} />
-                <Route element={<ProtectedRoute isAuthenticated={auth.isLoggedIn} />}>
-                    <Route path={ROUTES.PATIENTS} element={<Patients />} />
-                    <Route path={ROUTES.PATIENT_DETAILS} element={<PatientDetails />} />
-                    <Route path={ROUTES.PATIENTS_NEW} element={<PatientForm />} />
-                    <Route path={ROUTES.PATIENTS_EDIT} element={<PatientForm />} />
-                    <Route path={ROUTES.CONSULTATION_NEW} element={<RecordingSession />} />
-                    <Route path={ROUTES.CONSULTATION_NEW_EXISTING_PATIENT} element={<RecordingSession />} />
-                    <Route path={ROUTES.CONSULTATION_DOCUMENT} element={<div>consultation document</div>} />
-                    <Route path={ROUTES.CONSULTATION_REVIEW} element={<ReviewConsultation />} />
-                </Route>
-            </Routes>
+            <div className='relative mx-auto w-full max-w-3xl flex-1 bg-background md:shadow-sm'>
+                <Routes>
+                    <Route
+                        path='/'
+                        element={<Navigate to={auth.isLoggedIn ? ROUTES.PATIENTS : ROUTES.LOGIN} replace />}
+                    />
+                    <Route path={ROUTES.LOGIN} element={<LogIn />} />
+                    <Route element={<ProtectedRoute isAuthenticated={auth.isLoggedIn} />}>
+                        <Route path={ROUTES.PATIENTS} element={<Patients />} />
+                        <Route path={ROUTES.PATIENT_DETAILS} element={<PatientDetails />} />
+                        <Route path={ROUTES.PATIENTS_NEW} element={<PatientForm />} />
+                        <Route path={ROUTES.PATIENTS_EDIT} element={<PatientForm />} />
+                        <Route path={ROUTES.CONSULTATION_NEW} element={<RecordingSession />} />
+                        <Route path={ROUTES.CONSULTATION_NEW_EXISTING_PATIENT} element={<RecordingSession />} />
+                        <Route path={ROUTES.CONSULTATION_DOCUMENT} element={<div>consultation document</div>} />
+                        <Route path={ROUTES.CONSULTATION_REVIEW} element={<ReviewConsultation />} />
+                    </Route>
+                </Routes>
+            </div>
         </div>
     );
 }
