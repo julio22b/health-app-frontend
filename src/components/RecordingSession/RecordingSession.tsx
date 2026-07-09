@@ -352,7 +352,7 @@ const RecordingSession = () => {
                 {!isIdle && !isProcessing && !isDone && (
                     <div>
                         <Button
-                            className='size-14 bg-white rounded-full shadow-md shadow-gray-200 border-gray-200'
+                            className='size-14 bg-white hover:bg-gray-50 rounded-full shadow-md shadow-gray-200 border-gray-200'
                             onClick={discardRecording}
                         >
                             <Trash className='size-7 text-red-500' />
@@ -363,7 +363,7 @@ const RecordingSession = () => {
                 {!isProcessing && (
                     <div>
                         <Button
-                            className={`size-24 rounded-full ${!isRecording ? 'bg-blue-500 shadow-blue-400 shadow-md' : 'bg-white shadow-md shadow-gray-200'}`}
+                            className={`size-24 rounded-full ${!isRecording ? 'bg-blue-500 hover:bg-blue-600 shadow-blue-400 shadow-md' : 'bg-white hover:bg-gray-50 shadow-md shadow-gray-200'}`}
                             onClick={() => {
                                 if (isRecording) return pauseRecording();
                                 if (isPaused) return resumeRecording();
@@ -388,7 +388,7 @@ const RecordingSession = () => {
                 {!isIdle && !isProcessing && !isDone && (
                     <div>
                         <Button
-                            className='size-14 bg-green-600 rounded-full shadow-md shadow-green-400 text-white text-xs font-semibold border-gray-200'
+                            className='size-14 bg-green-600 hover:bg-green-700 rounded-full shadow-md shadow-green-400 text-white text-xs font-semibold border-gray-200'
                             disabled={!isPaused}
                             onClick={onSubmit}
                         >

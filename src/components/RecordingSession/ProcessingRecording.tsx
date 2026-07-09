@@ -21,7 +21,7 @@ const ProcessingRecording = ({
     return (
         <div className='flex flex-col items-center gap-4 absolute inset-14'>
             <div
-                className={`flex items-center gap-2 border border-gray-200 rounded-lg py-2 px-4 ${isConsultationCreated ? '' : 'bg-blue-50'}`}
+                className={`flex items-center gap-2 border border-gray-200 rounded-lg py-2 px-4 w-70 ${isConsultationCreated ? '' : 'bg-blue-50'}`}
             >
                 {isConsultationCreated ? (
                     <CircleCheck className='text-white fill-green-500 size-8' />
@@ -34,7 +34,7 @@ const ProcessingRecording = ({
                 </div>
             </div>
             <div
-                className={`flex items-center gap-2 border border-gray-200 rounded-lg py-2 px-4 ${isConsultationProcessed ? '' : 'bg-blue-50'}`}
+                className={`flex items-center gap-2 border border-gray-200 rounded-lg py-2 px-4 w-70 ${isConsultationProcessed ? '' : 'bg-blue-50'}`}
             >
                 {isConsultationProcessed ? (
                     <CircleCheck className='text-white fill-green-500 size-8' />
