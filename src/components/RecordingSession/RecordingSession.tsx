@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { DOCUMENT_TYPES, PATIENT_FORM_INITIAL_STATE, RECORDING_STATUSES } from '@/app/constants';
 import { ROUTES } from '@/routes';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
-import { formatTime } from '@/lib/utils';
+import { formatTime, getAudioExtension, getSupportedAudioMimeType } from '@/lib/utils';
 import {
     createConsultation,
     processConsultation,
@@ -139,20 +139,26 @@ const RecordingSession = () => {
     };
 
     const startRecording = (stream: MediaStream) => {
-        mediaRecorderRef.current = new MediaRecorder(stream);
-        mediaRecorderRef.current.ondataavailable = (ev) => {
+        const preferredMimeType = getSupportedAudioMimeType();
+        const recorder = preferredMimeType
+            ? new MediaRecorder(stream, { mimeType: preferredMimeType })
+            : new MediaRecorder(stream);
+        mediaRecorderRef.current = recorder;
+
+        recorder.ondataavailable = (ev) => {
             if (ev.data.size > 0) {
                 audioChunksRef.current.push(ev.data);
             }
         };
 
-        mediaRecorderRef.current.onstop = () => {
-            const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        recorder.onstop = () => {
+            // Close over `recorder` so the label can never desync from the chunks it produced.
+            const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
             audioBlobRef.current = audioBlob;
             dispatchConsultation(audioBlob, existingConsultation?.id);
         };
 
-        mediaRecorderRef.current.start();
+        recorder.start();
         setRecordingStatus(RECORDING_STATUSES.recording);
         drawWaveform(stream);
     };
@@ -238,7 +244,7 @@ const RecordingSession = () => {
 
         const formData = new FormData();
         formData.append('patientId', patientId);
-        formData.append('audioFile', blob, 'consultation.webm');
+        formData.append('audioFile', blob, `consultation.${getAudioExtension(blob.type)}`);
         try {
             let consultationId: number;
             if (existingConsultationId) {

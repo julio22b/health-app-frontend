@@ -46,6 +46,7 @@ export interface Consultation {
     patient_id: number;
     patient?: Patient;
     audio_url?: string;
+    audio_mime_type?: string | null;
     transcript_text?: string;
     status: ConsultationStatuses;
     created_at: string;
