@@ -68,7 +68,7 @@ const PatientDetails = () => {
                 <div>
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button variant='outline' size='icon' className='rounded-full mr-2'>
+                            <Button variant='outline' size='icon' className='rounded-full mr-2' aria-label='Delete patient'>
                                 <Trash />
                             </Button>
                         </DialogTrigger>
@@ -93,6 +93,7 @@ const PatientDetails = () => {
                         variant='outline'
                         size='icon'
                         className='rounded-full'
+                        aria-label='Edit patient'
                         onClick={() =>
                             navigate(ROUTES.PATIENTS_EDIT.replace(':id', String(patient.id)), {
                                 state: { patientToEdit: patient },
