@@ -27,6 +27,7 @@ Physicians spend a large share of their day writing documentation instead of see
 ## Screenshots & demo
 
 > 🔊 **Note:** This demo includes an audio explanation of the feature walkthrough.
+
 <div align="center">
   <video src="[https://github.com/user-attachments/assets/YOUR-VIDEO-ID.mp4](https://github.com/user-attachments/assets/997088ee-4f63-4bba-bfbd-5a6184f236e9)" width="100%" preload="metadata" controls loop>
   </video>
